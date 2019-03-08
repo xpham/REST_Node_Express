@@ -1,38 +1,20 @@
 const express = require('express');
 const mongoose = require('mongoose');
-
+const bodyParser = require('body-parser');
 const app = express();
 const db = mongoose.connect('mongodb://localhost/bookAPI')
-const bookRouter = express.Router();
 const port = process.env.PORT || 3000;
 
 // Here we request a model, in Mongoose a Model is responsible for creating and reading documents from MongoDB
 // https://mongoosejs.com/docs/models.html
 const Book = require('./models/bookModel');
+const bookRouter = require('./routes/bookRouter')(Book);
+//const authorRouter = require('./routes/authorRouter')(Author);
 
-
-bookRouter.route('/books')
-  .get((req, res) => {
-    Book.find((err, books) => {
-      if (err) {
-        return res.sender(err);
-      }
-      return res.json(books);
-    });
-  });
-
-// GET Request
-// bookRouter.route('/books')
-//   .get((req, res) => {
-//     const response = {
-//       hello: 'This is my API'
-//     };
-//     res.json(response);
-// });
-
-
+// MIDDLEWARES it's like java filters (chaining)
+app.use(bodyParser.urlencoded({extended:true})); // extended means data could be posted with nested object
+app.use(bodyParser.json());
 app.use('/api', bookRouter);
-
 
 // Root request
 app.get('/', (req, res) => {
